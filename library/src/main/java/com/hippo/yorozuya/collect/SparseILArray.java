@@ -17,7 +17,7 @@
 package com.hippo.yorozuya.collect;
 
 /**
- * SparseArrays map longs to Objects.  Unlike a normal array of Objects,
+ * SparseILArrays map integers to Objects.  Unlike a normal array of Objects,
  * there can be gaps in the indices.  It is intended to be more memory efficient
  * than using a HashMap to map Integers to Objects, both because it avoids
  * auto-boxing keys and its data structure doesn't rely on an extra entry object
@@ -44,34 +44,34 @@ package com.hippo.yorozuya.collect;
  * keys in ascending order, or the values corresponding to the keys in ascending
  * order in the case of <code>valueAt(int)</code>.</p>
  */
-public class SparseJLArray<E> {
+public class SparseILArray<E> implements Cloneable {
     private static final Object DELETED = new Object();
     private boolean mGarbage = false;
 
-    private long[] mKeys;
+    private int[] mKeys;
     private Object[] mValues;
     private int mSize;
 
     /**
-     * Creates a new SparseJLArray containing no mappings.
+     * Creates a new SparseILArray containing no mappings.
      */
-    public SparseJLArray() {
+    public SparseILArray() {
         this(10);
     }
 
     /**
-     * Creates a new SparseArray containing no mappings that will not
+     * Creates a new SparseILArray containing no mappings that will not
      * require any additional memory allocation to store the specified
      * number of mappings.  If you supply an initial capacity of 0, the
      * sparse array will be initialized with a light-weight representation
      * not requiring any additional array allocations.
      */
-    public SparseJLArray(int initialCapacity) {
+    public SparseILArray(int initialCapacity) {
         if (initialCapacity == 0) {
-            mKeys = CollectionUtils.EMPTY_LONG_ARRAY;
+            mKeys = CollectionUtils.EMPTY_INT_ARRAY;
             mValues = CollectionUtils.EMPTY_OBJECT_ARRAY;
         } else {
-            mKeys = new long[initialCapacity];
+            mKeys = new int[initialCapacity];
             mValues = new Object[initialCapacity];
         }
         mSize = 0;
@@ -79,10 +79,10 @@ public class SparseJLArray<E> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public SparseJLArray<E> clone() {
-        SparseJLArray<E> clone = null;
+    public SparseILArray<E> clone() {
+        SparseILArray<E> clone = null;
         try {
-            clone = (SparseJLArray<E>) super.clone();
+            clone = (SparseILArray<E>) super.clone();
             clone.mKeys = mKeys.clone();
             clone.mValues = mValues.clone();
         } catch (CloneNotSupportedException e) {
@@ -95,7 +95,7 @@ public class SparseJLArray<E> {
      * Gets the Object mapped from the specified key, or <code>null</code>
      * if no such mapping has been made.
      */
-    public E get(long key) {
+    public E get(int key) {
         return get(key, null);
     }
 
@@ -104,7 +104,7 @@ public class SparseJLArray<E> {
      * if no such mapping has been made.
      */
     @SuppressWarnings("unchecked")
-    public E get(long key, E valueIfKeyNotFound) {
+    public E get(int key, E valueIfKeyNotFound) {
         int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i < 0 || mValues[i] == DELETED) {
@@ -118,7 +118,7 @@ public class SparseJLArray<E> {
      * Removes the mapping from the specified key, if there was any.
      */
     @SuppressWarnings("unchecked")
-    public E delete(long key) {
+    public E delete(int key) {
         int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i >= 0) {
@@ -137,7 +137,7 @@ public class SparseJLArray<E> {
      * Removes the mapping from the specified key, if there was any, returning the old value.
      */
     @SuppressWarnings("unchecked")
-    public E removeReturnOld(long key) {
+    public E removeReturnOld(int key) {
         int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i >= 0) {
@@ -152,9 +152,9 @@ public class SparseJLArray<E> {
     }
 
     /**
-     * Alias for {@link #delete(long)}.
+     * Alias for {@link #delete(int)}.
      */
-    public E remove(long key) {
+    public E remove(int key) {
         return delete(key);
     }
 
@@ -182,11 +182,11 @@ public class SparseJLArray<E> {
     }
 
     private void gc() {
-        // Log.e("SparseJLArray", "gc start with " + mSize);
+        // Log.e("SparseILArray", "gc start with " + mSize);
 
         int n = mSize;
         int o = 0;
-        long[] keys = mKeys;
+        int[] keys = mKeys;
         Object[] values = mValues;
 
         for (int i = 0; i < n; i++) {
@@ -206,7 +206,7 @@ public class SparseJLArray<E> {
         mGarbage = false;
         mSize = o;
 
-        // Log.e("SparseJLArray", "gc end with " + mSize);
+        // Log.e("SparseILArray", "gc end with " + mSize);
     }
 
     /**
@@ -214,7 +214,7 @@ public class SparseJLArray<E> {
      * replacing the previous mapping from the specified key if there
      * was one.
      */
-    public void put(long key, E value) {
+    public void put(int key, E value) {
         int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i >= 0) {
@@ -242,7 +242,7 @@ public class SparseJLArray<E> {
     }
 
     /**
-     * Returns the number of key-value mappings that this SparseJLArray
+     * Returns the number of key-value mappings that this SparseILArray
      * currently stores.
      */
     public int size() {
@@ -256,14 +256,14 @@ public class SparseJLArray<E> {
     /**
      * Given an index in the range <code>0...size()-1</code>, returns
      * the key from the <code>index</code>th key-value mapping that this
-     * SparseJLArray stores.
+     * SparseILArray stores.
      *
      * <p>The keys corresponding to indices in ascending order are guaranteed to
      * be in ascending order, e.g., <code>keyAt(0)</code> will return the
      * smallest key and <code>keyAt(size()-1)</code> will return the largest
      * key.</p>
      */
-    public long keyAt(int index) {
+    public int keyAt(int index) {
         if (mGarbage) {
             gc();
         }
@@ -274,7 +274,7 @@ public class SparseJLArray<E> {
     /**
      * Given an index in the range <code>0...size()-1</code>, returns
      * the value from the <code>index</code>th key-value mapping that this
-     * SparseJLArray stores.
+     * SparseILArray stores.
      *
      * <p>The values corresponding to indices in ascending order are guaranteed
      * to be associated with keys in ascending order, e.g.,
@@ -294,7 +294,7 @@ public class SparseJLArray<E> {
     /**
      * Given an index in the range <code>0...size()-1</code>, sets a new
      * value for the <code>index</code>th key-value mapping that this
-     * SparseJLArray stores.
+     * SparseILArray stores.
      */
     public void setValueAt(int index, E value) {
         if (mGarbage) {
@@ -309,7 +309,7 @@ public class SparseJLArray<E> {
      * specified key, or a negative number if the specified
      * key is not mapped.
      */
-    public int indexOfKey(long key) {
+    public int indexOfKey(int key) {
         if (mGarbage) {
             gc();
         }
@@ -340,7 +340,7 @@ public class SparseJLArray<E> {
     }
 
     /**
-     * Removes all key-value mappings from this SparseJLArray.
+     * Removes all key-value mappings from this SparseILArray.
      */
     public void clear() {
         int n = mSize;
@@ -358,7 +358,7 @@ public class SparseJLArray<E> {
      * Puts a key/value pair into the array, optimizing for the case where
      * the key is greater than all existing keys in the array.
      */
-    public void append(long key, E value) {
+    public void append(int key, E value) {
         if (mSize != 0 && key <= mKeys[mSize - 1]) {
             put(key, value);
             return;
@@ -392,7 +392,7 @@ public class SparseJLArray<E> {
             if (i > 0) {
                 buffer.append(", ");
             }
-            long key = keyAt(i);
+            int key = keyAt(i);
             buffer.append(key);
             buffer.append('=');
             Object value = valueAt(i);
