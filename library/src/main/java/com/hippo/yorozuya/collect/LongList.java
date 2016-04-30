@@ -154,6 +154,10 @@ public class LongList implements Parcelable {
         return mSize;
     }
 
+    public long[] getInternalArray() {
+        return mArray;
+    }
+
     @Override
     public String toString() {
         long[] a = mArray;

@@ -154,6 +154,10 @@ public class IntList implements Parcelable {
         return mSize;
     }
 
+    public int[] getInternalArray() {
+        return mArray;
+    }
+
     @Override
     public String toString() {
         int[] a = mArray;
